@@ -4,6 +4,8 @@ import { render } from 'vitest-browser-svelte';
 
 import { user } from '../../stores';
 import RetroFeedbackItem from './RetroFeedbackItem.svelte';
+import { sampleGif } from '../../gif/__tests__/fixtures';
+import type { RetroItemGif } from '../../types/retro';
 
 const baseUser = {
   id: 'user-1',
@@ -36,7 +38,7 @@ const baseItem = {
 };
 
 const setup = (overrides?: {
-  item?: typeof baseItem;
+  item?: typeof baseItem & { gif?: RetroItemGif | null };
   phase?: string;
   feedbackVisibility?: string;
   sendSocketEvent?: (event: string, value: any) => void;
@@ -149,5 +151,61 @@ describe('RetroFeedbackItem component reactions', () => {
 
     const thumbsDownReaction = page.getByTestId('reaction-picker-option-thumbsdown');
     expect(thumbsDownReaction).toBeDisabled();
+  });
+});
+
+describe('RetroFeedbackItem GIF', () => {
+  // the logged in user is user-1
+  const gifItem = (userId: string) => ({ ...baseItem, userId, gif: sampleGif });
+
+  it('renders no GIF when the item has none', async () => {
+    setup({ phase: 'group' });
+
+    await expect.element(page.getByTestId('retro-feedback-item-content')).toHaveTextContent('Ship it');
+    await expect.element(page.getByTestId('retro-item-gif')).not.toBeInTheDocument();
+  });
+
+  it.each(['group', 'vote', 'action', 'completed'])(
+    'shows the GIF in the %s phase, even when brainstorm feedback was hidden',
+    async phase => {
+      setup({ item: gifItem('user-2'), phase, feedbackVisibility: 'hidden' });
+
+      const gif = page.getByTestId('retro-item-gif');
+      await expect.element(gif).toBeVisible();
+      await expect.element(gif).toHaveAttribute('src', sampleGif.url);
+      await expect.element(gif).toHaveAttribute('alt', sampleGif.title);
+    },
+  );
+
+  it("shows other users' GIFs in brainstorm when feedback is visible", async () => {
+    setup({ item: gifItem('user-2'), phase: 'brainstorm', feedbackVisibility: 'visible' });
+
+    await expect.element(page.getByTestId('retro-item-gif')).toBeVisible();
+  });
+
+  it.each(['hidden', 'concealed'])("hides other users' GIFs in brainstorm when feedback is %s", async visibility => {
+    setup({ item: gifItem('user-2'), phase: 'brainstorm', feedbackVisibility: visibility });
+
+    await expect.element(page.getByTestId('retro-feedback-item-content')).toBeInTheDocument();
+    await expect.element(page.getByTestId('retro-item-gif')).not.toBeInTheDocument();
+  });
+
+  it.each(['hidden', 'concealed'])('always shows my own GIF in brainstorm when feedback is %s', async visibility => {
+    setup({ item: gifItem('user-1'), phase: 'brainstorm', feedbackVisibility: visibility });
+
+    await expect.element(page.getByTestId('retro-item-gif')).toBeVisible();
+  });
+
+  it('shows the hidden placeholder for a GIF only item of another user', async () => {
+    setup({ item: { ...gifItem('user-2'), content: '' }, phase: 'brainstorm', feedbackVisibility: 'hidden' });
+
+    await expect.element(page.getByTestId('retro-feedback-item-content')).toHaveTextContent('Feedback Hidden');
+    await expect.element(page.getByTestId('retro-item-gif')).not.toBeInTheDocument();
+  });
+
+  it('marks the GIF as non draggable to avoid conflicts with drag and drop', async () => {
+    setup({ item: gifItem('user-1'), phase: 'group' });
+
+    await expect.element(page.getByTestId('retro-item-gif')).toHaveAttribute('draggable', 'false');
   });
 });
