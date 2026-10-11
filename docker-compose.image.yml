@@ -1,0 +1,11 @@
+# Override to run a published Thunderdome image instead of building from source.
+# Use it together with docker-compose.yml:
+#
+#   $env:DOCKERHUB_USER="myuser"; $env:THUNDERDOME_TAG="v5.17.2-fork.1"   # tag defaults to "latest"
+#   docker compose -f docker-compose.yml -f docker-compose.image.yml pull thunderdome
+#   docker compose -f docker-compose.yml -f docker-compose.image.yml up -d --no-build
+#
+# Then open http://127.0.0.1:8080 (APP_DOMAIN is ".127.0.0.1" in docker-compose.yml).
+services:
+  thunderdome:
+    image: ${DOCKERHUB_USER:?set DOCKERHUB_USER to your Docker Hub username}/thunderdome-planning-poker:${THUNDERDOME_TAG:-latest}
