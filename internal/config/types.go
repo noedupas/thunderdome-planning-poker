@@ -102,6 +102,9 @@ type AppConfig struct {
 	SubscriptionsEnabled        bool     `mapstructure:"subscriptions_enabled"`
 	RetroDefaultTemplateID      string   `mapstructure:"retro_default_template_id"`
 	DefaultPointAverageRounding string   `mapstructure:"default_point_average_rounding"`
+	GifProvider                 string   `mapstructure:"gif_provider"`
+	GifAPIKey                   string   `mapstructure:"gif_api_key"`
+	GifRating                   string   `mapstructure:"gif_rating"`
 }
 
 // Feature is the application feature enablement configuration

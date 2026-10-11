@@ -203,6 +203,7 @@ func serve(embedUseOS bool) {
 			CleanupGuestsDaysOld:      c.Config.CleanupGuestsDaysOld,
 			RequireTeams:              c.Config.RequireTeams,
 			RetroDefaultTemplateID:    c.Config.RetroDefaultTemplateID,
+			GifProvider:               c.Config.GifProvider,
 			AuthLdapUrl:               c.Auth.Ldap.Url,
 			AuthLdapUseTls:            c.Auth.Ldap.UseTls,
 			AuthLdapBindname:          c.Auth.Ldap.Bindname,
@@ -305,6 +306,9 @@ func serve(embedUseOS bool) {
 				RetroDefaultTemplateID:      c.Config.RetroDefaultTemplateID,
 				WebsocketSubdomain:          c.Http.WebsocketSubdomain,
 				DefaultPointAverageRounding: c.Config.DefaultPointAverageRounding,
+				GifProvider:                 c.Config.GifProvider,
+				GifAPIKey:                   c.Config.GifAPIKey,
+				GifRating:                   c.Config.GifRating,
 			},
 		},
 	}, uiFilesystem, uiHTTPFilesystem)

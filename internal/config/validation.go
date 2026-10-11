@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"strings"
+
+	"github.com/StevenWeathers/thunderdome-planning-poker/internal/gif"
 )
 
 const (
@@ -69,6 +71,17 @@ func (c Config) Validate() []ValidationIssue {
 	if c.Config.SubscriptionsEnabled {
 		issues = appendIfInvalid(issues, "subscription.account_secret", strings.TrimSpace(c.Subscription.AccountSecret) == "", "must be configured when config.subscriptions_enabled=true")
 		issues = appendIfInvalid(issues, "subscription.webhook_secret", strings.TrimSpace(c.Subscription.WebhookSecret) == "", "must be configured when config.subscriptions_enabled=true")
+	}
+
+	if provider := strings.TrimSpace(c.Config.GifProvider); provider != "" {
+		_, known := gif.Lookup(provider)
+		issues = appendIfInvalid(issues, "config.gif_provider", !known, "must be one of "+strings.Join(gif.Names(), ", "))
+		issues = appendIfInvalid(issues, "config.gif_api_key", strings.TrimSpace(c.Config.GifAPIKey) == "", "must be configured when config.gif_provider is set")
+		switch c.Config.GifRating {
+		case "g", "pg", "pg-13", "r":
+		default:
+			issues = append(issues, ValidationIssue{Key: "config.gif_rating", Message: "must be one of g, pg, pg-13, r"})
+		}
 	}
 
 	return issues

@@ -14,6 +14,7 @@ import (
 	"github.com/unrolled/secure/cspbuilder"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
+	"github.com/StevenWeathers/thunderdome-planning-poker/internal/gif"
 	"github.com/StevenWeathers/thunderdome-planning-poker/internal/oauth"
 
 	"github.com/StevenWeathers/thunderdome-planning-poker/internal/http/storyboard"
@@ -49,6 +50,10 @@ func New(apiService Service, FSS fs.FS, HFS http.FileSystem) *Service {
 	connectSrcCsp := []string{
 		"'self'",
 		getWebsocketConnectSrc(a.Config.SecureProtocol, a.Config.WebsocketSubdomain, a.Config.AppDomain),
+	}
+	// GIF searches are made by the browser directly to the provider API
+	if p, ok := gif.Lookup(a.Config.GifProvider); ok {
+		connectSrcCsp = append(connectSrcCsp, p.APIOrigin)
 	}
 
 	// Content Security Policy
@@ -90,6 +95,7 @@ func New(apiService Service, FSS fs.FS, HFS http.FileSystem) *Service {
 		PingPeriodSec:      a.Config.WebsocketConfig.PingPeriodSec,
 		AppDomain:          a.Config.AppDomain,
 		WebsocketSubdomain: a.Config.WebsocketConfig.WebsocketSubdomain,
+		GifProvider:        a.Config.GifProvider,
 	}, a.Logger, a.Cookie.ValidateSessionCookie, a.Cookie.ValidateUserCookie, a.UserDataSvc, a.AuthDataSvc,
 		a.RetroDataSvc, a.RetroTemplateDataSvc, a.Email)
 	storyboardSvc := storyboard.New(storyboard.Config{

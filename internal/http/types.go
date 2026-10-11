@@ -79,6 +79,8 @@ type Config struct {
 	AvatarService string
 	// ID of default template to select for Retro creation
 	RetroDefaultTemplateID string
+	// GIF provider used by retro items, empty when GIFs are disabled
+	GifProvider string
 	// Whether to use the OS filesystem or embedded
 	EmbedUseOS                bool
 	CleanupBattlesDaysOld     int

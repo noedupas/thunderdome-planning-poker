@@ -90,6 +90,9 @@ func InitConfig(logger *otelzap.Logger) Config {
 	viper.SetDefault("config.subscriptions_enabled", false)
 	viper.SetDefault("config.retro_default_template_id", "5c3b4783-82cb-45a4-ac7b-c956c6b4047e")
 	viper.SetDefault("config.default_point_average_rounding", "ceil")
+	viper.SetDefault("config.gif_provider", "")
+	viper.SetDefault("config.gif_api_key", "")
+	viper.SetDefault("config.gif_rating", "g")
 
 	viper.SetDefault("subscription.account_secret", "")
 	viper.SetDefault("subscription.webhook_secret", "")

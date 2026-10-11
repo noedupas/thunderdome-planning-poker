@@ -24,6 +24,9 @@ type Config struct {
 
 	// Websocket Subdomain (for Websocket origin check)
 	WebsocketSubdomain string
+
+	// GIF provider used by retro items, empty when GIFs are disabled
+	GifProvider string
 }
 
 type AuthDataSvc interface {

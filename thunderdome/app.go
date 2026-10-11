@@ -55,6 +55,9 @@ type AppConfig struct {
 	RetroDefaultTemplateID      string
 	WebsocketSubdomain          string
 	DefaultPointAverageRounding string
+	GifProvider                 string
+	GifAPIKey                   string
+	GifRating                   string
 }
 
 type UIConfig struct {
