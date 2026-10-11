@@ -63,9 +63,19 @@ export type RetroGroup = {
   items?: Array<RetroItem>;
 };
 
+export type RetroItemGif = {
+  provider: string;
+  id: string;
+  url: string;
+  width: number;
+  height: number;
+  title: string;
+};
+
 export type RetroItem = {
   comments?: Array<RetroItemComment>;
   content: string;
+  gif?: RetroItemGif | null;
   groupId: string;
   id: string;
   reactions?: Array<RetroItemReaction>;

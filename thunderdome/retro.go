@@ -58,8 +58,19 @@ type RetroItem struct {
 	GroupID   string               `json:"groupId" db:"group_id"`
 	Content   string               `json:"content" db:"content"`
 	Type      string               `json:"type" db:"type"`
+	Gif       *RetroItemGif        `json:"gif" db:"gif"`
 	Comments  []*RetroItemComment  `json:"comments"`
 	Reactions []*RetroItemReaction `json:"reactions"`
+}
+
+// RetroItemGif is a GIF attached to a retro item, stored independently of the provider it comes from
+type RetroItemGif struct {
+	Provider string `json:"provider"`
+	ID       string `json:"id"`
+	URL      string `json:"url"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
+	Title    string `json:"title"`
 }
 
 // RetroGroup is a grouping of retro items
