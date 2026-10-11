@@ -146,6 +146,53 @@ func TestConfigValidateRejectsUnknownAuthMethod(t *testing.T) {
 	assertHasIssue(t, issues, "auth.method", "must be one of")
 }
 
+func TestConfigValidateGif(t *testing.T) {
+	newConfig := func(provider string, apiKey string, rating string) Config {
+		return Config{
+			Http: Http{Domain: "planning.example.com", CookieHashkey: "cookie-secret"},
+			Db:   Db{User: "planner", Pass: "db-secret"},
+			Config: AppConfig{
+				AesHashkey:  "aes-secret",
+				GifProvider: provider,
+				GifAPIKey:   apiKey,
+				GifRating:   rating,
+			},
+			Auth: Auth{Method: "normal"},
+		}
+	}
+
+	t.Run("disabled ignores the other gif settings", func(t *testing.T) {
+		issues := newConfig("", "", "nc-17").Validate()
+		if len(issues) != 0 {
+			t.Fatalf("expected no validation issues, got %v", issues)
+		}
+	})
+
+	t.Run("configured provider", func(t *testing.T) {
+		for _, rating := range []string{"g", "pg", "pg-13", "r"} {
+			issues := newConfig("giphy", "giphy-key", rating).Validate()
+			if len(issues) != 0 {
+				t.Fatalf("expected no validation issues for rating %q, got %v", rating, issues)
+			}
+		}
+	})
+
+	t.Run("unknown provider", func(t *testing.T) {
+		issues := newConfig("tenor", "key", "g").Validate()
+		assertHasIssue(t, issues, "config.gif_provider", "must be one of giphy, klipy")
+	})
+
+	t.Run("missing api key", func(t *testing.T) {
+		issues := newConfig("klipy", " ", "g").Validate()
+		assertHasIssue(t, issues, "config.gif_api_key", "config.gif_provider is set")
+	})
+
+	t.Run("invalid rating", func(t *testing.T) {
+		issues := newConfig("giphy", "key", "pg13").Validate()
+		assertHasIssue(t, issues, "config.gif_rating", "must be one of g, pg, pg-13, r")
+	})
+}
+
 func assertHasIssue(t *testing.T, issues []ValidationIssue, key string, messagePart string) {
 	t.Helper()
 
