@@ -78,6 +78,9 @@ jobs:
           APP_DOMAIN: ".127.0.0.1"
           COOKIE_SECURE: "false"
           SMTP_ENABLED: "false"
+          # GIPHY is mocked in the e2e tests, the key only needs to be set
+          CONFIG_GIF_PROVIDER: "giphy"
+          CONFIG_GIF_API_KEY: "e2e-fake-key"
 
       - name: Install Playwright dependencies
         working-directory: ./e2e

@@ -20,6 +20,11 @@ export class RetroPage {
   readonly retroQuestionInput: Locator;
   readonly retroGroupNameInput: Locator;
   readonly retroActionItemInput: Locator;
+  readonly retroGifAddBtn: Locator;
+  readonly retroGifSearchInput: Locator;
+  readonly retroGifResults: Locator;
+  readonly retroGifSubmitBtn: Locator;
+  readonly retroItemGifs: Locator;
 
   constructor(page: Page) {
     this.retroTitle = page.locator("h1");
@@ -50,6 +55,12 @@ export class RetroPage {
     this.retroQuestionInput = page.getByPlaceholder("I want to ask...");
     this.retroGroupNameInput = page.getByPlaceholder("Group Name");
     this.retroActionItemInput = page.getByPlaceholder("Action item...");
+    // one item form per column: use first() to target the "What worked well" column
+    this.retroGifAddBtn = page.getByTestId("item-form-gif-add");
+    this.retroGifSearchInput = page.getByTestId("gif-picker-search");
+    this.retroGifResults = page.getByTestId("gif-picker-result");
+    this.retroGifSubmitBtn = page.getByTestId("item-form-submit");
+    this.retroItemGifs = page.getByTestId("retro-item-gif");
 
     this.page = page;
   }
