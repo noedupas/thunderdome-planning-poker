@@ -130,3 +130,8 @@ tasks:
     cmds:
       - task: build-go
       - DB_HOST="localhost" ./{{.BINARY}} migrate status
+
+  seed-dev:
+    cmds:
+      - docker compose cp scripts/seed-dev.sql db:/tmp/seed-dev.sql
+      - docker compose exec -T db psql -U thor -d thunderdome -v ON_ERROR_STOP=1 -f /tmp/seed-dev.sql
