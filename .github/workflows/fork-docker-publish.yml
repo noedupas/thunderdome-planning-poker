@@ -1,0 +1,77 @@
+name: fork-docker-publish
+
+# Build and push the Docker image to our private registry for fork releases.
+# Only tags following the fork convention trigger it (e.g. v5.17.2-fork.1),
+# so upstream tags fetched from StevenWeathers/thunderdome-planning-poker are ignored.
+#
+# Required repository configuration (Settings > Secrets and variables > Actions):
+#   Variables: REGISTRY            registry host, e.g. registry.example.com, docker.io, ghcr.io
+#              IMAGE_NAME          image path in the registry, e.g. thunderdome or myuser/thunderdome
+#   Secrets:   REGISTRY_USERNAME   registry login
+#              REGISTRY_PASSWORD   registry password or access token (with push rights)
+
+on:
+  push:
+    tags:
+      - 'v*-fork.*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+  lint:
+    uses: ./.github/workflows/lint.yml
+  test:
+    uses: ./.github/workflows/test.yml
+
+  docker:
+    needs: [ build, lint, test ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Login to registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ${{ vars.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.REGISTRY }}/${{ vars.IMAGE_NAME }}
+          flavor: |
+            latest=false
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest
+          labels: |
+            org.opencontainers.image.title=thunderdome
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: build/Dockerfile
+          # the Dockerfile builds a linux/amd64 binary only
+          platforms: linux/amd64
+          build-args: |
+            BUILD_VERSION=${{ github.ref_name }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

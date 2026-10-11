@@ -23,7 +23,7 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
   goreleaser:
-    if: startsWith(github.event.ref, 'refs/tags/')
+    if: startsWith(github.event.ref, 'refs/tags/') && github.repository == 'StevenWeathers/thunderdome-planning-poker'
     needs: [ build, lint, codeql, test ]
     runs-on: ubuntu-latest
     env:
