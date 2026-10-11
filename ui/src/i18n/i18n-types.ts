@@ -1382,6 +1382,42 @@ type RootTranslation = {
 	 */
 	retroFeedbackHidden: string
 	/**
+	 * A​d​d​ ​a​ ​G​I​F
+	 */
+	retroGifAdd: string
+	/**
+	 * C​l​o​s​e​ ​G​I​F​ ​s​e​a​r​c​h
+	 */
+	retroGifClose: string
+	/**
+	 * L​o​a​d​ ​m​o​r​e
+	 */
+	retroGifLoadMore: string
+	/**
+	 * G​I​F​ ​s​e​a​r​c​h​ ​l​i​m​i​t​ ​r​e​a​c​h​e​d​,​ ​p​l​e​a​s​e​ ​t​r​y​ ​a​g​a​i​n​ ​l​a​t​e​r
+	 */
+	retroGifRateLimited: string
+	/**
+	 * R​e​m​o​v​e​ ​G​I​F
+	 */
+	retroGifRemove: string
+	/**
+	 * G​I​F​ ​s​e​a​r​c​h​ ​f​a​i​l​e​d​,​ ​p​l​e​a​s​e​ ​t​r​y​ ​a​g​a​i​n
+	 */
+	retroGifSearchError: string
+	/**
+	 * N​o​ ​G​I​F​s​ ​f​o​u​n​d
+	 */
+	retroGifSearchNoResults: string
+	/**
+	 * S​e​a​r​c​h​ ​G​I​F​s​.​.​.
+	 */
+	retroGifSearchPlaceholder: string
+	/**
+	 * P​o​s​t
+	 */
+	retroGifSubmit: string
+	/**
 	 * W​h​a​t​ ​n​e​e​d​s​ ​i​m​p​r​o​v​e​m​e​n​t​.​.​.
 	 */
 	retroImprovePlaceholder: string
@@ -4396,6 +4432,42 @@ export type TranslationFunctions = {
 	 * Feedback Hidden
 	 */
 	retroFeedbackHidden: () => LocalizedString
+	/**
+	 * Add a GIF
+	 */
+	retroGifAdd: () => LocalizedString
+	/**
+	 * Close GIF search
+	 */
+	retroGifClose: () => LocalizedString
+	/**
+	 * Load more
+	 */
+	retroGifLoadMore: () => LocalizedString
+	/**
+	 * GIF search limit reached, please try again later
+	 */
+	retroGifRateLimited: () => LocalizedString
+	/**
+	 * Remove GIF
+	 */
+	retroGifRemove: () => LocalizedString
+	/**
+	 * GIF search failed, please try again
+	 */
+	retroGifSearchError: () => LocalizedString
+	/**
+	 * No GIFs found
+	 */
+	retroGifSearchNoResults: () => LocalizedString
+	/**
+	 * Search GIFs...
+	 */
+	retroGifSearchPlaceholder: () => LocalizedString
+	/**
+	 * Post
+	 */
+	retroGifSubmit: () => LocalizedString
 	/**
 	 * What needs improvement...
 	 */
