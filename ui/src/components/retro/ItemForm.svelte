@@ -1,8 +1,13 @@
 <script lang="ts">
-  import { Angry, CircleQuestionMark, Frown, Smile } from '@lucide/svelte';
+  import { Angry, CircleQuestionMark, Frown, ImagePlus, Smile, X } from '@lucide/svelte';
   import GrowingTextArea from '../global/GrowingTextArea.svelte';
   import RetroFeedbackItem from './RetroFeedbackItem.svelte';
-  import type { RetroItem, RetroUser } from '../../types/retro';
+  import GifPicker from './GifPicker.svelte';
+  import RetroItemGif from './RetroItemGif.svelte';
+  import LL, { locale } from '../../i18n/i18n-svelte';
+  import { AppConfig } from '../../config';
+  import { createGifProvider } from '../../gif';
+  import type { RetroItem, RetroItemGif as Gif, RetroUser } from '../../types/retro';
 
   interface Props {
     sendSocketEvent?: any;
@@ -36,8 +41,17 @@
 
   let textareaComponent: any;
 
+  // null when GIFs are disabled in config: no GIF button is rendered
+  const gifProvider = createGifProvider(AppConfig, $locale);
+  let gif = $state<Gif | null>(null);
+  let showGifPicker = $state(false);
+
   const handleFormSubmit = (evt: Event) => {
     evt.preventDefault();
+
+    if (content.trim() === '' && gif === null) {
+      return;
+    }
 
     sendSocketEvent(
       `create_item`,
@@ -45,10 +59,18 @@
         type: itemType,
         content,
         phase: phase,
+        gif,
       }),
     );
     content = '';
+    gif = null;
+    showGifPicker = false;
     textareaComponent?.resetHeight();
+  };
+
+  const handleGifSelect = (selected: Gif) => {
+    gif = selected;
+    showGifPicker = false;
   };
 </script>
 
@@ -90,7 +112,7 @@
           placeholder={newItemPlaceholder}
           id="new{itemType}"
           name="new{itemType}"
-          required
+          required={gif === null}
           onkeydown={(e: KeyboardEvent) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
@@ -98,6 +120,44 @@
             }
           }}
         />
+
+        {#if gifProvider}
+          {#if gif}
+            <div class="relative mt-2 self-start" data-testid="item-form-gif-preview">
+              <RetroItemGif {gif} class="max-h-32" />
+              <button
+                type="button"
+                onclick={() => (gif = null)}
+                aria-label={$LL.retroGifRemove()}
+                class="absolute top-1 end-1 p-0.5 rounded-full bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-200 hover:text-red-500"
+                data-testid="item-form-gif-remove"
+              >
+                <X class="w-4 h-4" />
+              </button>
+            </div>
+            <!-- a GIF is picked with the mouse, so a visible submit button avoids going back to the textarea -->
+            <button
+              type="submit"
+              class="mt-2 self-end px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
+              data-testid="item-form-submit"
+            >
+              {$LL.retroGifSubmit()}
+            </button>
+          {:else if showGifPicker}
+            <GifPicker provider={gifProvider} onselect={handleGifSelect} onclose={() => (showGifPicker = false)} />
+          {:else}
+            <button
+              type="button"
+              onclick={() => (showGifPicker = true)}
+              class="mt-2 self-start inline-flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-sky-400"
+              data-testid="item-form-gif-add"
+            >
+              <ImagePlus class="w-4 h-4" />
+              {$LL.retroGifAdd()}
+            </button>
+          {/if}
+        {/if}
+
         <button type="submit" class="hidden">submit</button>
       </form>
     </div>

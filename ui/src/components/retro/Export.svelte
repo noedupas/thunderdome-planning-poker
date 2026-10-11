@@ -1,5 +1,6 @@
 <script lang="ts">
   import LL from '../../i18n/i18n-svelte';
+  import RetroItemGif from './RetroItemGif.svelte';
 
   interface Props {
     retro?: any;
@@ -23,6 +24,11 @@
             {#if item.type === column.name}
               <li>
                 &bull; {item.content}
+                {#if item.gif}
+                  <div class="ps-4 my-1">
+                    <RetroItemGif gif={item.gif} class="max-h-32" />
+                  </div>
+                {/if}
               </li>
             {/if}
           {/each}

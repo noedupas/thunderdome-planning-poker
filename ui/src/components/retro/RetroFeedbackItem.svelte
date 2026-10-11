@@ -3,6 +3,7 @@
   import EmojiPicker from '../global/EmojiPicker.svelte';
   import { DEVELOPER_REACTION_OPTIONS, type EmojiPickerItem, type EmojiPickerOption } from '../global/emoji-picker';
   import ItemComments from './ItemComments.svelte';
+  import RetroItemGif from './RetroItemGif.svelte';
   import { user } from '../../stores';
   import LL from '../../i18n/i18n-svelte';
   import type { RetroItem, RetroItemReaction } from '../../types/retro';
@@ -41,6 +42,11 @@
   let selectedItem = $state<RetroItem | null>(null);
 
   const interactionsDisabled = $derived(phase === 'brainstorm' && feedbackVisibility === 'hidden');
+  // Same rule as the text: in brainstorm, other users' feedback is masked unless visibility is 'visible'.
+  // A GIF can't be concealed with the text color trick, so it is not rendered at all when masked.
+  const feedbackMasked = $derived(
+    phase === 'brainstorm' && feedbackVisibility !== 'visible' && item.userId !== $user.id,
+  );
   const itemReactions = $derived((item.reactions ?? []) as RetroItemReaction[]);
   const reactionSummary = $derived(
     DEVELOPER_REACTION_OPTIONS.map((option: EmojiPickerOption) => {
@@ -163,6 +169,11 @@
       {item.content}
     {/if}
   </p>
+  {#if item.gif && !feedbackMasked}
+    <div class="mt-2">
+      <RetroItemGif gif={item.gif} />
+    </div>
+  {/if}
   <div class="mt-3 flex flex-wrap items-center gap-2" data-testid="retro-feedback-item-reactions">
     <EmojiPicker
       options={reactionSummary}
