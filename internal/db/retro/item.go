@@ -1,6 +1,7 @@
 package retro
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 
@@ -9,7 +10,17 @@ import (
 )
 
 // CreateRetroItem adds a feedback item to the retro
-func (d *Service) CreateRetroItem(retroID string, userID string, itemType string, content string) ([]*thunderdome.RetroItem, error) {
+func (d *Service) CreateRetroItem(retroID string, userID string, itemType string, content string, gif *thunderdome.RetroItemGif) ([]*thunderdome.RetroItem, error) {
+	var gifJSON *string
+	if gif != nil {
+		b, err := json.Marshal(gif)
+		if err != nil {
+			return nil, fmt.Errorf("marshal retro item gif error: %v", err)
+		}
+		s := string(b)
+		gifJSON = &s
+	}
+
 	var groupID string
 	err := d.DB.QueryRow(
 		`INSERT INTO thunderdome.retro_group
@@ -23,9 +34,9 @@ func (d *Service) CreateRetroItem(retroID string, userID string, itemType string
 
 	if _, err := d.DB.Exec(
 		`INSERT INTO thunderdome.retro_item
-		(retro_id, group_id, type, content, user_id)
-		VALUES ($1, $2, $3, $4, $5);`,
-		retroID, groupID, itemType, content, userID,
+		(retro_id, group_id, type, content, user_id, gif)
+		VALUES ($1, $2, $3, $4, $5, $6::jsonb);`,
+		retroID, groupID, itemType, content, userID, gifJSON,
 	); err != nil {
 		d.Logger.Error("insert retro item error", zap.Error(err))
 	}
@@ -72,7 +83,7 @@ func (d *Service) GetRetroItems(retroID string) []*thunderdome.RetroItem {
 
 	itemRows, itemsErr := d.DB.Query(
 		`SELECT
-				ri.id, ri.user_id, ri.group_id, ri.content, ri.type,
+				ri.id, ri.user_id, ri.group_id, ri.content, ri.type, ri.gif,
 				COALESCE(
 					(
 						SELECT json_agg(rc ORDER BY rc.created_date)
@@ -99,13 +110,19 @@ func (d *Service) GetRetroItems(retroID string) []*thunderdome.RetroItem {
 		for itemRows.Next() {
 			var comments string
 			var reactions string
+			var gif sql.NullString
 			var ri = &thunderdome.RetroItem{
 				Comments:  make([]*thunderdome.RetroItemComment, 0),
 				Reactions: make([]*thunderdome.RetroItemReaction, 0),
 			}
-			if err := itemRows.Scan(&ri.ID, &ri.UserID, &ri.GroupID, &ri.Content, &ri.Type, &comments, &reactions); err != nil {
+			if err := itemRows.Scan(&ri.ID, &ri.UserID, &ri.GroupID, &ri.Content, &ri.Type, &gif, &comments, &reactions); err != nil {
 				d.Logger.Error("get retro items query scan error", zap.Error(err))
 			} else {
+				if gif.Valid {
+					if jsonErr := json.Unmarshal([]byte(gif.String), &ri.Gif); jsonErr != nil {
+						d.Logger.Error("retro item gif json error", zap.Error(jsonErr))
+					}
+				}
 				jsonErr := json.Unmarshal([]byte(comments), &ri.Comments)
 				if jsonErr != nil {
 					d.Logger.Error("retro item comments json error", zap.Error(jsonErr))

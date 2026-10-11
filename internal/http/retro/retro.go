@@ -60,7 +60,7 @@ type RetroDataSvc interface {
 	RetroActionAssigneeAdd(retroID string, actionID string, userID string) ([]*thunderdome.RetroAction, error)
 	RetroActionAssigneeDelete(retroID string, actionID string, userID string) ([]*thunderdome.RetroAction, error)
 
-	CreateRetroItem(retroID string, userID string, itemType string, content string) ([]*thunderdome.RetroItem, error)
+	CreateRetroItem(retroID string, userID string, itemType string, content string, gif *thunderdome.RetroItemGif) ([]*thunderdome.RetroItem, error)
 	GroupRetroItem(retroID string, itemId string, groupId string) (thunderdome.RetroItem, error)
 	DeleteRetroItem(retroID string, userID string, itemType string, itemID string) ([]*thunderdome.RetroItem, error)
 	GroupNameChange(retroID string, groupID string, name string) (thunderdome.RetroGroup, error)

@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 
+	"github.com/StevenWeathers/thunderdome-planning-poker/internal/gif"
 	"github.com/StevenWeathers/thunderdome-planning-poker/internal/wshub"
 
 	"github.com/StevenWeathers/thunderdome-planning-poker/thunderdome"
@@ -14,16 +16,26 @@ import (
 // CreateItem creates a retro item
 func (s *Service) CreateItem(ctx context.Context, RetroID string, UserID string, EventValue string) (any, []byte, error, bool) {
 	var rs struct {
-		Type    string `json:"type"`
-		Content string `json:"content"`
-		Phase   string `json:"phase"`
+		Type    string                    `json:"type"`
+		Content string                    `json:"content"`
+		Phase   string                    `json:"phase"`
+		Gif     *thunderdome.RetroItemGif `json:"gif"`
 	}
 	err := json.Unmarshal([]byte(EventValue), &rs)
 	if err != nil {
 		return nil, nil, err, false
 	}
 
-	items, err := s.RetroService.CreateRetroItem(RetroID, UserID, rs.Type, rs.Content)
+	if strings.TrimSpace(rs.Content) == "" && rs.Gif == nil {
+		return nil, nil, errors.New("RETRO_ITEM_EMPTY"), false
+	}
+	if rs.Gif != nil {
+		if err := gif.Validate(s.config.GifProvider, rs.Gif); err != nil {
+			return nil, nil, err, false
+		}
+	}
+
+	items, err := s.RetroService.CreateRetroItem(RetroID, UserID, rs.Type, rs.Content, rs.Gif)
 	if err != nil {
 		return nil, nil, err, false
 	}

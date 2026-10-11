@@ -1544,6 +1544,8 @@ definitions:
         type: array
       content:
         type: string
+      gif:
+        $ref: '#/definitions/thunderdome.RetroItemGif'
       groupId:
         type: string
       id:
@@ -1571,6 +1573,21 @@ definitions:
         type: string
       user_id:
         type: string
+    type: object
+  thunderdome.RetroItemGif:
+    properties:
+      height:
+        type: integer
+      id:
+        type: string
+      provider:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+      width:
+        type: integer
     type: object
   thunderdome.RetroItemReaction:
     properties:

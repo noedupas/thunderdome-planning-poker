@@ -18349,6 +18349,9 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "gif": {
+                    "$ref": "#/definitions/thunderdome.RetroItemGif"
+                },
                 "groupId": {
                     "type": "string"
                 },
@@ -18389,6 +18392,29 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "thunderdome.RetroItemGif": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
                 }
             }
         },
